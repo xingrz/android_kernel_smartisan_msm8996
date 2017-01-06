@@ -33,6 +33,7 @@
 #include <linux/clk.h>
 #include <linux/delay.h>
 #include <linux/gpio.h>
+#include <linux/input.h>
 #include <linux/interrupt.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
@@ -40,9 +41,12 @@
 #include <linux/of.h>
 #include <linux/of_gpio.h>
 #include <linux/regulator/consumer.h>
+#include <linux/slab.h>
 #include <soc/qcom/scm.h>
 #include <linux/platform_device.h>
 #include <linux/wakelock.h>
+
+#define FPC1020_NAME "fpc1020"
 
 #define FPC1020_RESET_LOW_US 1000
 #define FPC1020_RESET_HIGH1_US 100
@@ -95,6 +99,8 @@ struct fpc1020_data {
 	bool clocks_enabled;
 	bool clocks_suspended;
 #endif
+
+	struct input_handler input_handler;
 };
 
 static int vreg_setup(struct fpc1020_data *fpc1020, const char *name,
@@ -370,6 +376,63 @@ static const struct attribute_group attribute_group = {
 	.attrs = attributes,
 };
 
+static int input_connect(struct input_handler *handler,
+		struct input_dev *dev, const struct input_device_id *id) {
+	int rc;
+	struct input_handle *handle;
+	struct fpc1020_data *fpc1020 =
+		container_of(handler, struct fpc1020_data, input_handler);
+
+	if (!strstr(dev->name, "uinput-fpc"))
+		return -ENODEV;
+
+	handle = kzalloc(sizeof(struct input_handle), GFP_KERNEL);
+	if (!handle)
+		return -ENOMEM;
+
+	handle->dev = dev;
+	handle->handler = handler;
+	handle->name = FPC1020_NAME;
+	handle->private = fpc1020;
+
+	rc = input_register_handle(handle);
+	if (rc)
+		goto err_input_register_handle;
+
+	rc = input_open_device(handle);
+	if (rc)
+		goto err_input_open_device;
+
+	return 0;
+
+err_input_open_device:
+	input_unregister_handle(handle);
+err_input_register_handle:
+	kfree(handle);
+	return rc;
+}
+
+static bool input_filter(struct input_handle *handle, unsigned int type,
+		unsigned int code, int value)
+{
+	return false;
+}
+
+static void input_disconnect(struct input_handle *handle)
+{
+	input_close_device(handle);
+	input_unregister_handle(handle);
+	kfree(handle);
+}
+
+static const struct input_device_id ids[] = {
+	{
+		.flags = INPUT_DEVICE_ID_MATCH_EVBIT,
+		.evbit = { BIT_MASK(EV_KEY) },
+	},
+	{ },
+};
+
 static irqreturn_t fpc1020_irq_handler(int irq, void *handle)
 {
 	struct fpc1020_data *fpc1020 = handle;
@@ -532,6 +595,18 @@ static int fpc1020_probe(struct platform_device *pdev)
 
 	wake_lock_init(&fpc1020->ttw_wl, WAKE_LOCK_SUSPEND, "fpc_ttw_wl");
 
+	fpc1020->input_handler.filter = input_filter;
+	fpc1020->input_handler.connect = input_connect;
+	fpc1020->input_handler.disconnect = input_disconnect;
+	fpc1020->input_handler.name = FPC1020_NAME;
+	fpc1020->input_handler.id_table = ids;
+
+	rc = input_register_handler(&fpc1020->input_handler);
+	if (rc) {
+		dev_err(dev, "failed to register key handler\n");
+		goto exit;
+	}
+
 	rc = sysfs_create_group(&dev->kobj, &attribute_group);
 	if (rc) {
 		dev_err(dev, "could not create sysfs\n");
@@ -599,7 +674,7 @@ MODULE_DEVICE_TABLE(of, fpc1020_of_match);
 
 static struct platform_driver fpc1020_driver = {
 	.driver = {
-		.name	= "fpc1020",
+		.name	= FPC1020_NAME,
 		.owner	= THIS_MODULE,
 		.of_match_table = fpc1020_of_match,
 #ifndef FPC_TEE_HANDLE_SPI_CLOCK
