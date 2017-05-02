@@ -14,6 +14,7 @@
 
 #include <linux/i2c.h>
 #include <linux/gpio.h>
+#include <linux/of_gpio.h>
 #include <soc/qcom/camera2.h>
 #include <media/v4l2-subdev.h>
 #include <media/msmb_camera.h>
@@ -41,7 +42,14 @@ struct msm_ois_vreg {
 	int num_vreg;
 };
 
+struct msm_ois_gpio {
+	struct msm_camera_gpio_conf *cam_gconf;
+	struct msm_pinctrl_info pinctrl_info;
+	int num_gpio;
+};
+
 struct msm_ois_ctrl_t {
+	int shared_power_flag;
 	struct i2c_driver *i2c_driver;
 	struct platform_driver *pdriver;
 	struct platform_device *pdev;
@@ -58,6 +66,9 @@ struct msm_ois_ctrl_t {
 	uint32_t subdev_id;
 	enum msm_ois_state_t ois_state;
 	struct msm_ois_vreg vreg_cfg;
+	struct msm_ois_gpio gpio_cfg;
+	struct msm_ois_gpio shared_gpio_cfg;
+	struct clk *clk[2];
 };
 
 #endif

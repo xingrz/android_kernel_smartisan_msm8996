@@ -638,6 +638,9 @@ ifneq ($(CONFIG_FRAME_WARN),0)
 KBUILD_CFLAGS += $(call cc-option,-Wframe-larger-than=${CONFIG_FRAME_WARN})
 endif
 
+ifeq ($(TARGET_BUILD_VARIANT), user)
+KBUILD_CFLAGS  += -D_BUILD_USER=1
+endif
 # Handle stack protector mode.
 #
 # Since kbuild can potentially perform two passes (first with the old

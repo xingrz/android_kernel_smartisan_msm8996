@@ -2052,6 +2052,8 @@ static int qpnp_pon_probe(struct spmi_device *spmi)
 		return rc;
 	}
 
+	dev_info(&pon->spmi->dev,"PMIC@SID%d Power-on reason 0x808:'%#x'\n", pon->spmi->sid, pon_sts);
+
 	index = ffs(pon_sts) - 1;
 	cold_boot = !qpnp_pon_is_warm_reset();
 	if (index >= ARRAY_SIZE(qpnp_pon_reason) || index < 0) {
@@ -2081,8 +2083,14 @@ static int qpnp_pon_probe(struct spmi_device *spmi)
 				rc);
 			return rc;
 		}
+
+		dev_info(&pon->spmi->dev,"PMIC@SID%d Power-on reason 0x80c:'%#x' ,0x80d:'%#x'\n", pon->spmi->sid, buf[0], buf[1]);
+
 		poff_sts = buf[0] | (buf[1] << 8);
 	}
+
+	dev_info(&pon->spmi->dev,"PMIC@SID%d Power-on reason poff_sts(0x80d|0x80c):'%#x'\n", pon->spmi->sid, poff_sts);
+
 	index = ffs(poff_sts) - 1 + reason_index_offset;
 	if (index >= ARRAY_SIZE(qpnp_poff_reason) || index < 0) {
 		dev_info(&pon->spmi->dev,

@@ -3692,6 +3692,11 @@ static void mdss_mdp_ctl_restore_sub(struct mdss_mdp_ctl *ctl)
 	writel_relaxed(temp, ctl->mdata->mdp_base +
 			MDSS_MDP_REG_DISP_INTF_SEL);
 
+#ifdef CONFIG_LCD_COLOMBO
+	writel_relaxed(0x02200, ctl->mdata->mdp_base +
+			MDSS_MDP_REG_VSYNC_SEL);
+#endif
+
 	if (ctl->mfd && ctl->panel_data) {
 		ctl->mfd->ipc_resume = true;
 		mdss_mdp_pp_resume(ctl->mfd);
@@ -3795,6 +3800,11 @@ static int mdss_mdp_ctl_start_sub(struct mdss_mdp_ctl *ctl, bool handoff)
 
 	writel_relaxed(temp, ctl->mdata->mdp_base +
 		MDSS_MDP_REG_DISP_INTF_SEL);
+
+#ifdef CONFIG_LCD_COLOMBO
+	writel_relaxed(0x02200, ctl->mdata->mdp_base +
+			MDSS_MDP_REG_VSYNC_SEL);
+#endif
 
 	mixer = ctl->mixer_left;
 	if (mixer) {

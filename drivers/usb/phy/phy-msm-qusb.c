@@ -611,6 +611,7 @@ static int qusb_phy_init(struct usb_phy *phy)
 			qusb_phy_write_seq(qphy->base, qphy->qusb_phy_init_seq,
 					qphy->init_seq_len, 0);
 
+
 		/* Wait for 5ms as per QUSB2 RUMI sequence */
 		usleep_range(5000, 7000);
 
@@ -652,6 +653,8 @@ static int qusb_phy_init(struct usb_phy *phy)
 
 		pr_debug("%s(): Programming TUNE2 parameter as:%x\n", __func__,
 				qphy->tune2_val);
+        qphy->tune2_val = ((qphy->tune2_val & 0xf) | (0x8 << 4));
+
 		writel_relaxed(qphy->tune2_val,
 				qphy->base + QUSB2PHY_PORT_TUNE2);
 	}
