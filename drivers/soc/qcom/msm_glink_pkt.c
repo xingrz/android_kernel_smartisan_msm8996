@@ -195,7 +195,7 @@ enum {
 	GLINK_PKT_STATUS = 1U << 0,
 };
 
-static int msm_glink_pkt_debug_mask;
+static int msm_glink_pkt_debug_mask = 1;
 module_param_named(debug_mask, msm_glink_pkt_debug_mask,
 		int, S_IRUGO | S_IWUSR | S_IWGRP);
 

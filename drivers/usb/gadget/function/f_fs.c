@@ -3556,9 +3556,9 @@ static void ffs_closed(struct ffs_data *ffs)
 
 	ffs_obj->desc_ready = false;
 
-	if (test_and_clear_bit(FFS_FL_CALL_CLOSED_CALLBACK, &ffs->flags) &&
-	    ffs_obj->ffs_closed_callback)
-		ffs_obj->ffs_closed_callback(ffs);
+	 if (test_and_clear_bit(FFS_FL_CALL_CLOSED_CALLBACK, &ffs->flags) &&
+            ffs_obj->ffs_closed_callback)
+                ffs_obj->ffs_closed_callback(ffs);
 
 	if (ffs_obj->opts)
 		opts = ffs_obj->opts;

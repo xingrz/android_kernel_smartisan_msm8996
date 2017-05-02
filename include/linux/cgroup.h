@@ -42,6 +42,17 @@ extern int proc_cgroup_show(struct seq_file *m, struct pid_namespace *ns,
 
 /* define the enumeration of all cgroup subsystems */
 #define SUBSYS(_x) _x ## _cgrp_id,
+extern int proc_migrate_from_bg_count;
+extern bool cgroup_task_in_cpu_bg(struct task_struct *p);
+extern int __cgroup_get_bg_released_pids(int * pids, int length);
+static inline int cgroup_get_bg_released_pids(int * pids, int length)
+{
+    if (0 == proc_migrate_from_bg_count) {
+        return 0;
+    }
+    return __cgroup_get_bg_released_pids(pids, length);
+}
+
 enum cgroup_subsys_id {
 #include <linux/cgroup_subsys.h>
 	CGROUP_SUBSYS_COUNT,
