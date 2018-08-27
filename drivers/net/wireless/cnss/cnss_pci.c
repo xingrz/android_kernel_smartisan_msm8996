@@ -97,9 +97,19 @@ static struct cnss_fw_files FW_FILES_QCA6174_FW_2_0 = {
 static struct cnss_fw_files FW_FILES_QCA6174_FW_1_3 = {
 "qwlan13.bin", "bdwlan13.bin", "otp13.bin", "utf13.bin",
 "utfbd13.bin", "epping13.bin", "evicted13.bin"};
+#if defined CONFIG_VENDOR_SMARTISAN_SURABAYA
+static struct cnss_fw_files FW_FILES_QCA6174_FW_3_0 = {
+"qwlan30.bin", "surabaya.bin", "otp30.bin", "utf30.bin",
+"utfbd30.bin", "epping30.bin", "evicted30.bin"};
+#elif defined CONFIG_VENDOR_SMARTISAN_COLOMBO
+static struct cnss_fw_files FW_FILES_QCA6174_FW_3_0 = {
+"qwlan30.bin", "colombo.bin", "otp30.bin", "utf30.bin",
+"utfbd30.bin", "epping30.bin", "evicted30.bin"};
+#else
 static struct cnss_fw_files FW_FILES_QCA6174_FW_3_0 = {
 "qwlan30.bin", "bdwlan30.bin", "otp30.bin", "utf30.bin",
 "utfbd30.bin", "epping30.bin", "evicted30.bin"};
+#endif
 static struct cnss_fw_files FW_FILES_DEFAULT = {
 "qwlan.bin", "bdwlan.bin", "otp.bin", "utf.bin",
 "utfbd.bin", "epping.bin", "evicted.bin"};
@@ -955,8 +965,16 @@ void cnss_setup_fw_files(u16 revision)
 	case QCA6174_FW_3_2:
 		strlcpy(penv->fw_files.image_file, "qwlan30.bin",
 			CNSS_MAX_FILE_NAME);
+#if defined CONFIG_VENDOR_SMARTISAN_SURABAYA
+		strlcpy(penv->fw_files.board_data, "surabaya.bin",
+			CNSS_MAX_FILE_NAME);
+#elif defined CONFIG_VENDOR_SMARTISAN_COLOMBO
+		strlcpy(penv->fw_files.board_data, "colombo.bin",
+			CNSS_MAX_FILE_NAME);
+#else
 		strlcpy(penv->fw_files.board_data, "bdwlan30.bin",
 			CNSS_MAX_FILE_NAME);
+#endif
 		strlcpy(penv->fw_files.otp_data, "otp30.bin",
 			CNSS_MAX_FILE_NAME);
 		strlcpy(penv->fw_files.utf_file, "utf30.bin",
