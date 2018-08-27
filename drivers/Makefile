@@ -173,3 +173,9 @@ obj-$(CONFIG_SENSORS_SSC)	+= sensors/
 
 # <t-base drivers
 obj-$(CONFIG_MOBICORE_DRIVER)	+= gud/
+
+ifdef CONFIG_VENDOR_SMARTISAN
+obj-$(CONFIG_P61_NFC) += ese-nxp/
+obj-y += fingerprint/
+obj-y += smartisan/
+endif
