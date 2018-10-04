@@ -364,13 +364,6 @@
 		qcom,hdmi-tx-hpd-gpio = <&tlmm 34 0>;
 		qcom,hdmi-tx-mux-en-gpio = <&tlmm 27 0>;
 		qcom,hdmi-tx-mux-sel-gpio = <&tlmm 83 0>;
-		pinctrl-names = "default", "sleep";
-		pinctrl-0 = <&mdss_hdmi_hpd_active
-			     &mdss_hdmi_ddc_active
-			     &mdss_hdmi_cec_active>;
-		pinctrl-1 = <&mdss_hdmi_hpd_suspend
-			     &mdss_hdmi_ddc_suspend
-			     &mdss_hdmi_cec_suspend>;
 
 		sde_hdmi_audio: qcom,sde-hdmi-audio-rx {
 			compatible = "qcom,msm-hdmi-audio-codec-rx";
