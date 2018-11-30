@@ -326,9 +326,14 @@ struct msm_vfe_axi_stream_request_cmd {
 	uint32_t controllable_output;
 	uint32_t burst_len;
 	/* Flag indicating memory input stream */
+#ifdef CONFIG_VENDOR_SMARTISAN
+	enum msm_stream_memory_input_t memory_input;
+#else
 	enum msm_stream_rdi_input_type rdi_input_type;
+#endif
 };
 
+#ifndef CONFIG_VENDOR_SMARTISAN
 struct msm_vfe32_axi_stream_request_cmd {
 	uint32_t session_id;
 	uint32_t stream_id;
@@ -351,6 +356,7 @@ struct msm_vfe32_axi_stream_request_cmd {
 	/* Flag indicating memory input stream */
 	enum msm_stream_memory_input_t memory_input;
 };
+#endif
 
 struct msm_vfe_axi_stream_release_cmd {
 	uint32_t stream_handle;
@@ -378,7 +384,9 @@ struct msm_vfe_axi_stream_cfg_cmd {
 	uint32_t stream_handle[VFE_AXI_SRC_MAX];
 	enum msm_vfe_axi_stream_cmd cmd;
 	uint8_t sync_frame_id_src;
+#ifndef CONFIG_VENDOR_SMARTISAN
 	enum msm_vfe_hw_state hw_state;
+#endif
 };
 
 enum msm_vfe_axi_stream_update_type {
@@ -391,10 +399,14 @@ enum msm_vfe_axi_stream_update_type {
 	UPDATE_STREAM_ADD_BUFQ,
 	UPDATE_STREAM_REMOVE_BUFQ,
 	UPDATE_STREAM_SW_FRAME_DROP,
+#ifndef CONFIG_VENDOR_SMARTISAN
 	UPDATE_STREAM_REQUEST_FRAMES_VER2,
 	UPDATE_STREAM_OFFLINE_AXI_CONFIG,
+#endif
 };
+#ifndef CONFIG_VENDOR_SMARTISAN
 #define UPDATE_STREAM_REQUEST_FRAMES_VER2 UPDATE_STREAM_REQUEST_FRAMES_VER2
+#endif
 
 enum msm_vfe_iommu_type {
 	IOMMU_ATTACH,
@@ -446,6 +458,10 @@ struct msm_vfe_restart_fe_cmd {
 struct msm_vfe_axi_stream_update_cmd {
 	uint32_t num_streams;
 	enum msm_vfe_axi_stream_update_type update_type;
+#ifdef CONFIG_VENDOR_SMARTISAN
+	struct msm_vfe_axi_stream_cfg_update_info
+				update_info[MSM_ISP_STATS_MAX];
+#else
 	/*
 	 * For backward compatibility, ensure 1st member of any struct
 	 * in union below is uint32_t stream_handle.
@@ -455,6 +471,7 @@ struct msm_vfe_axi_stream_update_cmd {
 					update_info[MSM_ISP_STATS_MAX];
 		struct msm_vfe_axi_stream_cfg_update_info_req_frm req_frm_ver2;
 	};
+#endif
 };
 
 struct msm_vfe_smmu_attach_cmd {
@@ -502,7 +519,9 @@ enum msm_vfe_reg_cfg_type {
 	VFE_HW_UPDATE_UNLOCK,
 	SET_WM_UB_SIZE,
 	SET_UB_POLICY,
+#ifndef CONFIG_VENDOR_SMARTISAN
 	GET_VFE_HW_LIMIT,
+#endif
 };
 
 struct msm_vfe_cfg_cmd2 {
@@ -712,8 +731,10 @@ enum msm_isp_event_idx {
 	ISP_REG_UPDATE_MISSING = 13,
 	ISP_BUF_FATAL_ERROR = 14,
 	ISP_EVENT_MAX         = 15,
+#ifndef CONFIG_VENDOR_SMARTISAN
 	ISP_WM_BUS_OVERFLOW = 16,
 	ISP_CAMIF_ERROR     = 17
+#endif
 };
 
 #define ISP_EVENT_OFFSET          8
@@ -768,7 +789,9 @@ struct msm_isp_fetch_eng_event {
 struct msm_isp_stats_event {
 	uint32_t stats_mask;                        /* 4 bytes */
 	uint8_t stats_buf_idxs[MSM_ISP_STATS_MAX];  /* 11 bytes */
+#ifndef CONFIG_VENDOR_SMARTISAN
 	uint8_t pd_stats_idx;
+#endif
 };
 
 struct msm_isp_stream_ack {
@@ -827,6 +850,7 @@ struct msm_isp_sof_info {
 	uint16_t stats_get_buf_fail_mask;
 	/* delta between master and slave */
 	struct msm_isp_ms_delta_info ms_delta_info;
+#ifndef CONFIG_VENDOR_SMARTISAN
 	/*
 	 * mask with AXI_SRC in paused state. In PAUSED
 	 * state there is no Buffer output. So this mask is used
@@ -835,6 +859,7 @@ struct msm_isp_sof_info {
 	uint16_t axi_updating_mask;
 	/* extended mask with bufq_handle for regs not updated */
 	uint32_t reg_update_fail_mask_ext;
+#endif
 };
 #define AXI_UPDATING_MASK 1
 #define REG_UPDATE_FAIL_MASK_EXT 1

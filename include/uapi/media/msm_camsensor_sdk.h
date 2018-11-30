@@ -45,7 +45,11 @@
 
 #define MAX_LED_TRIGGERS          3
 
+#ifdef CONFIG_VENDOR_SMARTISAN
+#define MSM_EEPROM_MEMORY_MAP_MAX_SIZE  300
+#else
 #define MSM_EEPROM_MEMORY_MAP_MAX_SIZE  80
+#endif
 #define MSM_EEPROM_MAX_MEM_MAP_CNT      8
 
 #define MSM_SENSOR_BYPASS_VIDEO_NODE    1
@@ -55,6 +59,11 @@ enum msm_sensor_camera_id_t {
 	CAMERA_1,
 	CAMERA_2,
 	CAMERA_3,
+#ifdef CONFIG_VENDOR_SMARTISAN
+	CAMERA_4,
+	CAMERA_5,
+	CAMERA_6,
+#endif
 	MAX_CAMERAS,
 };
 
@@ -63,6 +72,9 @@ enum i2c_freq_mode_t {
 	I2C_FAST_MODE,
 	I2C_CUSTOM_MODE,
 	I2C_FAST_PLUS_MODE,
+#ifdef CONFIG_VENDOR_SMARTISAN
+	I2C_OIS_MODE,
+#endif
 	I2C_MAX_MODES,
 };
 
@@ -92,6 +104,9 @@ enum msm_camera_i2c_data_type {
 	MSM_CAMERA_I2C_BYTE_DATA = 1,
 	MSM_CAMERA_I2C_WORD_DATA,
 	MSM_CAMERA_I2C_DWORD_DATA,
+#ifdef CONFIG_VENDOR_SMARTISAN
+	MSM_CAMERA_I2C_SEQ_DATA,
+#endif
 	MSM_CAMERA_I2C_SET_BYTE_MASK,
 	MSM_CAMERA_I2C_UNSET_BYTE_MASK,
 	MSM_CAMERA_I2C_SET_WORD_MASK,
@@ -107,10 +122,16 @@ enum msm_sensor_power_seq_gpio_t {
 	SENSOR_GPIO_VIO,
 	SENSOR_GPIO_VANA,
 	SENSOR_GPIO_VDIG,
+#ifdef CONFIG_VENDOR_SMARTISAN
+	SENSOR_SHARED_GPIO_VDIG,
+#endif
 	SENSOR_GPIO_VAF,
 	SENSOR_GPIO_FL_EN,
 	SENSOR_GPIO_FL_NOW,
 	SENSOR_GPIO_FL_RESET,
+#ifdef CONFIG_VENDOR_SMARTISAN
+	SENSOR_GPIO_XSHUT,
+#endif
 	SENSOR_GPIO_CUSTOM1,
 	SENSOR_GPIO_CUSTOM2,
 	SENSOR_GPIO_MAX,
@@ -292,6 +313,9 @@ struct msm_camera_sensor_slave_info {
 	char eeprom_name[32];
 	char actuator_name[32];
 	char ois_name[32];
+#ifdef CONFIG_VENDOR_SMARTISAN
+	char tof_name[32];
+#endif
 	char flash_name[32];
 	enum msm_sensor_camera_id_t camera_id;
 	unsigned short slave_addr;
@@ -302,7 +326,9 @@ struct msm_camera_sensor_slave_info {
 	unsigned char  is_init_params_valid;
 	struct msm_sensor_init_params sensor_init_params;
 	enum msm_sensor_output_format_t output_format;
+#ifndef CONFIG_VENDOR_SMARTISAN
 	uint8_t bypass_video_node_creation;
+#endif
 };
 
 struct msm_camera_i2c_reg_array {
@@ -402,9 +428,17 @@ struct region_params_t {
 
 struct reg_settings_t {
 	unsigned short reg_addr;
+#ifdef CONFIG_VENDOR_SMARTISAN
+	enum msm_actuator_addr_type addr_type;
+#else
 	enum msm_camera_i2c_reg_addr_type addr_type;
+#endif
 	unsigned short reg_data;
+#ifdef CONFIG_VENDOR_SMARTISAN
+	enum msm_actuator_data_type data_type;
+#else
 	enum msm_camera_i2c_data_type data_type;
+#endif
 	enum msm_actuator_i2c_operation i2c_operation;
 	unsigned int delay;
 };

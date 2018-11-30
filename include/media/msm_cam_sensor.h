@@ -31,6 +31,9 @@ struct msm_camera_sensor_slave_info32 {
 	char eeprom_name[32];
 	char actuator_name[32];
 	char ois_name[32];
+#ifdef CONFIG_VENDOR_SMARTISAN
+	char tof_name[32];
+#endif
 	char flash_name[32];
 	enum msm_sensor_camera_id_t camera_id;
 	uint16_t slave_addr;
@@ -41,7 +44,9 @@ struct msm_camera_sensor_slave_info32 {
 	uint8_t  is_init_params_valid;
 	struct msm_sensor_init_params sensor_init_params;
 	enum msm_sensor_output_format_t output_format;
+#ifndef CONFIG_VENDOR_SMARTISAN
 	uint8_t bypass_video_node_creation;
+#endif
 };
 
 struct msm_camera_csid_lut_params32 {
@@ -147,8 +152,13 @@ struct msm_actuator_params_t32 {
 	uint16_t init_setting_size;
 	uint32_t i2c_addr;
 	enum i2c_freq_mode_t i2c_freq_mode;
+#ifdef CONFIG_VENDOR_SMARTISAN
+	enum msm_actuator_addr_type i2c_addr_type;
+	enum msm_actuator_data_type i2c_data_type;
+#else
 	enum msm_camera_i2c_reg_addr_type i2c_addr_type;
 	enum msm_camera_i2c_data_type i2c_data_type;
+#endif
 	compat_uptr_t reg_tbl_params;
 	compat_uptr_t init_settings;
 	struct park_lens_data_t park_lens;
@@ -224,10 +234,38 @@ struct msm_ois_set_info_t32 {
 struct msm_ois_cfg_data32 {
 	int cfgtype;
 	union {
+#ifdef CONFIG_VENDOR_SMARTISAN
+		int shared_power_flag;
+#endif
 		struct msm_ois_set_info_t32 set_info;
 		compat_uptr_t settings;
 	} cfg;
 };
+
+#ifdef CONFIG_VENDOR_SMARTISAN
+struct msm_tof_params_t32 {
+	uint16_t data_size;
+	uint16_t setting_size;
+	uint32_t i2c_addr;
+	enum i2c_freq_mode_t i2c_freq_mode;
+	enum msm_camera_i2c_reg_addr_type i2c_addr_type;
+	enum msm_camera_i2c_data_type i2c_data_type;
+	compat_uptr_t settings;
+};
+
+struct msm_tof_set_info_t32 {
+	struct msm_tof_params_t32 tof_params;
+};
+
+struct msm_tof_cfg_data32 {
+	int cfgtype;
+	union {
+		int shared_power_flag;
+		struct msm_tof_set_info_t32 set_info;
+		compat_uptr_t settings;
+	} cfg;
+};
+#endif
 
 struct msm_flash_init_info_t32 {
 	enum msm_flash_driver_type flash_driver_type;
@@ -264,6 +302,11 @@ struct msm_flash_cfg_data_t32 {
 
 #define VIDIOC_MSM_OIS_CFG32 \
 	_IOWR('V', BASE_VIDIOC_PRIVATE + 11, struct msm_ois_cfg_data32)
+
+#ifdef CONFIG_VENDOR_SMARTISAN
+#define VIDIOC_MSM_TOF_CFG32 \
+	_IOWR('V', BASE_VIDIOC_PRIVATE + 12, struct msm_tof_cfg_data32)
+#endif
 
 #define VIDIOC_MSM_CSID_IO_CFG32 \
 	_IOWR('V', BASE_VIDIOC_PRIVATE + 5, struct csid_cfg_data32)

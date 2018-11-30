@@ -85,8 +85,10 @@ struct msm_camera_gpio_conf {
 	struct gpio *cam_gpio_common_tbl;
 	uint8_t cam_gpio_common_tbl_size;
 	struct gpio *cam_gpio_req_tbl;
+#ifndef CONFIG_VENDOR_SMARTISAN
 	struct msm_gpio_set_tbl *cam_gpio_set_tbl;
 	uint8_t cam_gpio_set_tbl_size;
+#endif
 	uint8_t cam_gpio_req_tbl_size;
 	uint32_t gpio_no_mux;
 	uint32_t *camera_off_table;
@@ -106,11 +108,17 @@ struct msm_camera_power_ctrl_t {
 	struct camera_vreg_t *cam_vreg;
 	int num_vreg;
 	struct msm_camera_i2c_conf *i2c_conf;
+#ifndef CONFIG_VENDOR_SMARTISAN
 	struct clk **clk_ptr;
+#endif
 	struct msm_cam_clk_info *clk_info;
 	struct msm_pinctrl_info pinctrl_info;
 	uint8_t cam_pinctrl_status;
+#ifdef CONFIG_VENDOR_SMARTISAN
+	uint16_t clk_info_size;
+#else
 	size_t clk_info_size;
+#endif
 };
 
 enum msm_camera_actuator_name {
@@ -148,8 +156,13 @@ struct msm_camera_sensor_board_info {
 	const char *sensor_name;
 	const char *eeprom_name;
 	const char *actuator_name;
+#ifndef CONFIG_VENDOR_SMARTISAN
 	const char *flash_name;
+#endif
 	const char *ois_name;
+#ifdef CONFIG_VENDOR_SMARTISAN
+	const char *tof_name;
+#endif
 	struct msm_camera_slave_info *slave_info;
 	struct msm_camera_csi_lane_params *csi_lane_params;
 	struct msm_camera_sensor_strobe_flash_data *strobe_flash_data;

@@ -143,8 +143,10 @@ enum ispif_cfg_type_t {
 	ISPIF_RELEASE,
 	ISPIF_ENABLE_REG_DUMP,
 	ISPIF_SET_VFE_INFO,
+#ifndef CONFIG_VENDOR_SMARTISAN
 	ISPIF_CFG2,
 	ISPIF_CFG_STEREO,
+#endif
 };
 
 struct ispif_cfg_data {
