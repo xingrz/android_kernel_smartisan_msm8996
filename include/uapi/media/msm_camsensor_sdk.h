@@ -18,7 +18,6 @@
 #define CSI_DECODE_8BIT         1
 #define CSI_DECODE_10BIT        2
 #define CSI_DECODE_12BIT        3
-#define CSI_DECODE_DPCM_10_6_10 4
 #define CSI_DECODE_DPCM_10_8_10 5
 #define MAX_CID                 16
 #define I2C_SEQ_REG_DATA_MAX    1024
@@ -45,7 +44,7 @@
 
 #define MAX_LED_TRIGGERS          3
 
-#define MSM_EEPROM_MEMORY_MAP_MAX_SIZE  80
+#define MSM_EEPROM_MEMORY_MAP_MAX_SIZE  300
 #define MSM_EEPROM_MAX_MEM_MAP_CNT      8
 
 enum msm_sensor_camera_id_t {
@@ -53,6 +52,9 @@ enum msm_sensor_camera_id_t {
 	CAMERA_1,
 	CAMERA_2,
 	CAMERA_3,
+	CAMERA_4,
+	CAMERA_5,
+	CAMERA_6,
 	MAX_CAMERAS,
 };
 
@@ -61,6 +63,7 @@ enum i2c_freq_mode_t {
 	I2C_FAST_MODE,
 	I2C_CUSTOM_MODE,
 	I2C_FAST_PLUS_MODE,
+	I2C_OIS_MODE,
 	I2C_MAX_MODES,
 };
 
@@ -90,6 +93,7 @@ enum msm_camera_i2c_data_type {
 	MSM_CAMERA_I2C_BYTE_DATA = 1,
 	MSM_CAMERA_I2C_WORD_DATA,
 	MSM_CAMERA_I2C_DWORD_DATA,
+	MSM_CAMERA_I2C_SEQ_DATA,
 	MSM_CAMERA_I2C_SET_BYTE_MASK,
 	MSM_CAMERA_I2C_UNSET_BYTE_MASK,
 	MSM_CAMERA_I2C_SET_WORD_MASK,
@@ -105,23 +109,16 @@ enum msm_sensor_power_seq_gpio_t {
 	SENSOR_GPIO_VIO,
 	SENSOR_GPIO_VANA,
 	SENSOR_GPIO_VDIG,
+	SENSOR_SHARED_GPIO_VDIG,
 	SENSOR_GPIO_VAF,
 	SENSOR_GPIO_FL_EN,
 	SENSOR_GPIO_FL_NOW,
 	SENSOR_GPIO_FL_RESET,
+    	SENSOR_GPIO_XSHUT,
 	SENSOR_GPIO_CUSTOM1,
 	SENSOR_GPIO_CUSTOM2,
 	SENSOR_GPIO_MAX,
 };
-
-enum msm_ir_cut_filter_gpio_t {
-	IR_CUT_FILTER_GPIO_P = 0,
-	IR_CUT_FILTER_GPIO_M,
-	IR_CUT_FILTER_GPIO_MAX,
-};
-#define IR_CUT_FILTER_GPIO_P IR_CUT_FILTER_GPIO_P
-#define IR_CUT_FILTER_GPIO_M IR_CUT_FILTER_GPIO_M
-#define R_CUT_FILTER_GPIO_MAX IR_CUT_FILTER_GPIO_MAX
 
 enum msm_camera_vreg_name_t {
 	CAM_VDIG,
@@ -190,28 +187,6 @@ enum msm_flash_cfg_type_t {
 	CFG_FLASH_LOW,
 	CFG_FLASH_HIGH,
 };
-
-enum msm_ir_led_cfg_type_t {
-	CFG_IR_LED_INIT = 0,
-	CFG_IR_LED_RELEASE,
-	CFG_IR_LED_OFF,
-	CFG_IR_LED_ON,
-};
-#define CFG_IR_LED_INIT CFG_IR_LED_INIT
-#define CFG_IR_LED_RELEASE CFG_IR_LED_RELEASE
-#define CFG_IR_LED_OFF CFG_IR_LED_OFF
-#define CFG_IR_LED_ON CFG_IR_LED_ON
-
-enum msm_ir_cut_cfg_type_t {
-	CFG_IR_CUT_INIT = 0,
-	CFG_IR_CUT_RELEASE,
-	CFG_IR_CUT_OFF,
-	CFG_IR_CUT_ON,
-};
-#define CFG_IR_CUT_INIT CFG_IR_CUT_INIT
-#define CFG_IR_CUT_RELEASE CFG_IR_CUT_RELEASE
-#define CFG_IR_CUT_OFF CFG_IR_CUT_OFF
-#define CFG_IR_CUT_ON CFG_IR_CUT_ON
 
 enum msm_sensor_output_format_t {
 	MSM_SENSOR_BAYER,
@@ -290,6 +265,7 @@ struct msm_camera_sensor_slave_info {
 	char eeprom_name[32];
 	char actuator_name[32];
 	char ois_name[32];
+    char tof_name[32];
 	char flash_name[32];
 	enum msm_sensor_camera_id_t camera_id;
 	unsigned short slave_addr;
@@ -399,9 +375,9 @@ struct region_params_t {
 
 struct reg_settings_t {
 	unsigned short reg_addr;
-	enum msm_camera_i2c_reg_addr_type addr_type;
+	enum msm_actuator_addr_type addr_type;
 	unsigned short reg_data;
-	enum msm_camera_i2c_data_type data_type;
+	enum msm_actuator_data_type data_type;
 	enum msm_actuator_i2c_operation i2c_operation;
 	unsigned int delay;
 };
