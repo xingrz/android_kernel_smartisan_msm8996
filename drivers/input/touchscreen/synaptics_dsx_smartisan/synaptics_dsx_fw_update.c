@@ -47,8 +47,6 @@
 #else
 #define FW_IMAGE_NAME "synaptics/startup_fw_update_surabaya.img"
 #endif
-#define DO_STARTUP_FW_UPDATE
-
 #ifdef DO_STARTUP_FW_UPDATE
 #ifdef CONFIG_FB
 #define WAIT_FOR_FB_READY
