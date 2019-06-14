@@ -46,6 +46,8 @@
 #include <linux/platform_device.h>
 #include <linux/wakelock.h>
 
+#include <linux/input/keypad.h>
+
 #define FPC1020_NAME "fpc1020"
 
 #define FPC1020_RESET_LOW_US 1000
@@ -101,6 +103,7 @@ struct fpc1020_data {
 #endif
 
 	struct input_handler input_handler;
+	int key_code;
 };
 
 static int vreg_setup(struct fpc1020_data *fpc1020, const char *name,
@@ -376,6 +379,32 @@ static const struct attribute_group attribute_group = {
 	.attrs = attributes,
 };
 
+static int keypad_read(u32 *code, void *data)
+{
+	struct fpc1020_data *fpc1020 = (struct fpc1020_data *) data;
+
+	if (!fpc1020) {
+		return -ENODEV;
+	}
+
+	*code = fpc1020->key_code;
+
+	return 0;
+}
+
+static int keypad_write(u32 code, void *data)
+{
+	struct fpc1020_data *fpc1020 = (struct fpc1020_data *) data;
+
+	if (!fpc1020) {
+		return -ENODEV;
+	}
+
+	fpc1020->key_code = code;
+
+	return 0;
+}
+
 static int input_connect(struct input_handler *handler,
 		struct input_dev *dev, const struct input_device_id *id) {
 	int rc;
@@ -415,7 +444,8 @@ err_input_register_handle:
 static bool input_filter(struct input_handle *handle, unsigned int type,
 		unsigned int code, int value)
 {
-	return false;
+	struct fpc1020_data *fpc1020 = handle->private;
+	return fpc1020->key_code == 0;
 }
 
 static void input_disconnect(struct input_handle *handle)
@@ -606,6 +636,12 @@ static int fpc1020_probe(struct platform_device *pdev)
 		dev_err(dev, "failed to register key handler\n");
 		goto exit;
 	}
+
+	fpc1020->key_code = KEY_BACK;
+
+	keypad_register("home_touch", fpc1020,
+		keypad_read,
+		keypad_write);
 
 	rc = sysfs_create_group(&dev->kobj, &attribute_group);
 	if (rc) {
