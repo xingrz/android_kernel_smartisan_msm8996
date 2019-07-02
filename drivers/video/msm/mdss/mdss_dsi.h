@@ -99,6 +99,9 @@ enum dsi_panel_bl_ctrl {
 	BL_PWM,
 	BL_WLED,
 	BL_DCS_CMD,
+#ifdef CONFIG_VENDOR_SMARTISAN
+	BL_IC_LM36923,
+#endif
 	UNKNOWN_CTRL,
 };
 

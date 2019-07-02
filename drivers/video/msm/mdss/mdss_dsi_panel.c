@@ -22,6 +22,9 @@
 #include <linux/qpnp/pwm.h>
 #include <linux/err.h>
 #include <linux/string.h>
+#ifdef CONFIG_VENDOR_SMARTISAN
+#include <linux/platform_data/ti-scbl.h>
+#endif
 
 #include "mdss_dsi.h"
 #include "mdss_debug.h"
@@ -33,6 +36,11 @@
 #define DEFAULT_MDP_TRANSFER_TIME 14000
 
 #define VSYNC_DELAY msecs_to_jiffies(17)
+
+#ifdef CONFIG_VENDOR_SMARTISAN
+struct semaphore firm_sem;
+EXPORT_SYMBOL(firm_sem);
+#endif
 
 DEFINE_LED_TRIGGER(bl_led_trigger);
 
@@ -832,6 +840,18 @@ static void mdss_dsi_panel_bl_ctrl(struct mdss_panel_data *pdata,
 				mdss_dsi_panel_bklt_dcs(sctrl, bl_level);
 		}
 		break;
+#if defined(CONFIG_VENDOR_SMARTISAN) && defined(CONFIG_LCD_COLOMBO)
+	case BL_IC_LM36923:
+		if (bl_level == 0)
+			down(&firm_sem);
+
+		scbl_set_brightness(bl_level);
+
+		if (bl_level == 0)
+			up(&firm_sem);
+
+		break;
+#endif
 	default:
 		pr_err("%s: Unknown bl_ctrl configuration\n",
 			__func__);
@@ -2279,6 +2299,12 @@ int mdss_panel_parse_bl_settings(struct device_node *np,
 			ctrl_pdata->bklt_ctrl = BL_DCS_CMD;
 			pr_debug("%s: Configured DCS_CMD bklt ctrl\n",
 								__func__);
+#ifdef CONFIG_VENDOR_SMARTISAN
+		} else if (!strcmp(data, "bl_ctrl_lm36923")) {
+			ctrl_pdata->bklt_ctrl = BL_IC_LM36923;
+			pr_debug("%s: Configured BL_IC_LM36923 bklt ctrl\n",
+								__func__);
+#endif
 		}
 	}
 	return 0;
@@ -2851,6 +2877,10 @@ int mdss_dsi_panel_init(struct device_node *node,
 		pr_err("%s: Invalid arguments\n", __func__);
 		return -ENODEV;
 	}
+
+#ifdef CONFIG_VENDOR_SMARTISAN
+	sema_init(&firm_sem, 1);
+#endif
 
 	pinfo = &ctrl_pdata->panel_data.panel_info;
 
